@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiYatra - Face Verification</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f5fa;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        video {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            background: #222;
+            margin-top: 15px;
+        }
+
+        #captureCanvas {
+            display: none;
+        }
+
+        #capturedPreview {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px 18px;
+            margin: 8px 4px;
+            border: none;
+            border-radius: 8px;
+            background: #174ea6;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        #statusText {
+            margin-top: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>DigiYatra</h1>
+    <h2>Face Verification</h2>
+
+    <p>Please position your face clearly in front of the camera.</p>
+
+    <video id="camera" autoplay playsinline muted></video>
+
+    <canvas id="captureCanvas"></canvas>
+
+    <img id="capturedPreview" alt="Captured face preview">
+
+    <div>
+        <button id="startCameraButton">Start Camera</button>
+        <button id="captureButton" disabled>Capture Face</button>
+        <button id="retakeButton" disabled>Retake Photo</button>
+        <button id="verifyButton" disabled>Verify Face</button>
+    </div>
+
+    <p id="statusText">Start the camera to begin.</p>
+
+</div>
+
+<script>
+    const camera = document.getElementById("camera");
+    const canvas = document.getElementById("captureCanvas");
+    const preview = document.getElementById("capturedPreview");
+
+    const startButton = document.getElementById("startCameraButton");
+    const captureButton = document.getElementById("captureButton");
+    const retakeButton = document.getElementById("retakeButton");
+    const verifyButton = document.getElementById("verifyButton");
+
+    const statusText = document.getElementById("statusText");
+
+    let cameraStream = null;
+    let capturedImage = null;
+
+    async function startCamera() {
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: "user"
+                },
+                audio: false
+            });
+
+            camera.srcObject = cameraStream;
+
+            statusText.textContent = "Camera started. Position your face.";
+
+            startButton.disabled = true;
+            captureButton.disabled = false;
+
+        } catch (error) {
+            statusText.textContent =
+                "Unable to access camera. Please allow camera permission.";
+        }
+    }
+
+    function captureFace() {
+        if (!cameraStream || camera.videoWidth === 0) {
+            statusText.textContent = "Please wait for the camera to load.";
+            return;
+        }
+
+        canvas.width = camera.videoWidth;
+        canvas.height = camera.videoHeight;
+
+        const context = canvas.getContext("2d");
+
+        context.drawImage(
+            camera,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        capturedImage = canvas.toDataURL("image/jpeg", 0.9);
+
+        preview.src = capturedImage;
+        preview.style.display = "block";
+
+        statusText.textContent = "Photo captured. Check your image.";
+
+        captureButton.disabled = true;
+        retakeButton.disabled = false;
+        verifyButton.disabled = false;
+    }
+
+    function retakeFace() {
+        capturedImage = null;
+
+        preview.src = "";
+        preview.style.display = "none";
+
+        statusText.textContent = "Position your face and capture again.";
+
+        captureButton.disabled = false;
+        retakeButton.disabled = true;
+        verifyButton.disabled = true;
+    }
+
+    async function verifyFace() {
+        if (!capturedImage) {
+            statusText.textContent = "Please capture your face first.";
+            return;
+        }
+
+        verifyButton.disabled = true;
+        statusText.textContent = "Verifying face. Please wait...";
+
+        try {
+            const response = await fetch("/api/verify-visitor-face", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    image: capturedImage,
+                    stage: "first"
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result.message || "Face verification failed."
+                );
+            }
+
+            statusText.textContent =
+                "First face verification successful! Opening passenger details...";
+
+            setTimeout(() => {
+                window.location.href = "/visitor-passenger-details";
+            }, 2000);
+
+        } catch (error) {
+            statusText.textContent =
+                error.message || "Verification failed. Please try again.";
+
+            verifyButton.disabled = false;
+        }
+    }
+
+    startButton.addEventListener("click", startCamera);
+    captureButton.addEventListener("click", captureFace);
+    retakeButton.addEventListener("click", retakeFace);
+    verifyButton.addEventListener("click", verifyFace);
+
+    window.addEventListener("beforeunload", () => {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+        }
+    });
+</script>
+
+</body>
+</html>

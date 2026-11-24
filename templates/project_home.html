@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiYatra | Project Home</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #102c50, #176b87);
+            color: white;
+            padding: 30px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            padding: 35px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+        }
+
+        .logo {
+            font-size: 48px;
+        }
+
+        .school {
+            color: #b9e5f5;
+            font-size: 17px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 38px;
+            margin: 15px 0 5px;
+        }
+
+        .subtitle {
+            color: #d8e8f2;
+            font-size: 19px;
+            line-height: 1.5;
+        }
+
+        .tag {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            padding: 9px 18px;
+            border-radius: 20px;
+            margin: 12px 5px;
+            font-size: 13px;
+        }
+
+        .section {
+            text-align: left;
+            background: rgba(255,255,255,0.08);
+            padding: 22px;
+            margin-top: 22px;
+            border-radius: 14px;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-top: 0;
+            color: #ffffff;
+        }
+
+        .section p {
+            color: #e0edf5;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        .students {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .student {
+            background: rgba(255,255,255,0.14);
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .start-button {
+            display: inline-block;
+            margin-top: 28px;
+            padding: 16px 30px;
+            background: white;
+            color: #123c5a;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .start-button:hover {
+            background: #d8e8f2;
+        }
+
+        .disclaimer {
+            margin-top: 25px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #c8dce8;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px 18px;
+            }
+
+            h1 {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="container">
+
+        <div class="logo">✈️</div>
+
+        <div class="school">HVB GLOBAL ACADEMY</div>
+
+        <h1>DigiYatra</h1>
+
+        <p class="subtitle">
+            AI-Based Smart Airport Verification System
+        </p>
+
+        <span class="tag">Grade 7</span>
+        <span class="tag">AI Integrated Electronics</span>
+
+        <div class="section">
+            <h2>About Our Project</h2>
+            <p>
+                DigiYatra is a technology-based system that uses
+                facial recognition to demonstrate paperless and
+                contactless passenger verification at airport
+                checkpoints, making the airport journey faster
+                and more convenient.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>Project Team</h2>
+
+            <div class="students">
+                <div class="student">Abhishek</div>
+                <div class="student">Joicy</div>
+                <div class="student">Sushant</div>
+                <div class="student">Reva</div>
+            </div>
+        </div>
+
+        <a class="start-button" href="{{ url_for('visitor_register') }}">
+            Start Visitor Registration →
+        </a>
+
+        <p class="disclaimer">
+            Educational exhibition demonstration only.
+            Flights and passenger information are fictional.
+            Face capture requires your permission.
+            This prototype is not valid for actual air travel.
+        </p>
+
+    </main>
+
+</body>
+</html>

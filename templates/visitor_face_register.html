@@ -1,0 +1,308 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiYatra - Face Registration</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px 15px;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        h1 {
+            color: #123b68;
+        }
+
+        p {
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        video {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            background: #111827;
+            margin: 15px auto;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        #capturedPreview {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+            margin: 15px auto;
+            border-radius: 12px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 7px;
+            background: #123b68;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        #status {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .back {
+            display: block;
+            margin-top: 20px;
+            color: #123b68;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>DigiYatra</h1>
+
+    <h2>Face Registration</h2>
+
+    <p>
+        Position your face in the camera frame.
+        Make sure your face is clearly visible.
+    </p>
+
+    <video id="camera" autoplay playsinline muted></video>
+
+    <canvas id="captureCanvas"></canvas>
+
+    <img id="capturedPreview" alt="Captured face preview">
+
+    <button id="startCamera">
+        Start Camera
+    </button>
+
+    <button id="captureFace" disabled>
+        Capture Face
+    </button>
+
+    <button id="retakeFace" disabled>
+        Retake Photo
+    </button>
+
+    <button id="confirmFace" disabled>
+        Confirm Face Registration
+    </button>
+
+    <p id="status">Camera not started.</p>
+
+    <a class="back" href="{{ url_for('visitor_register') }}">
+        Back to Registration
+    </a>
+
+</div>
+
+<script>
+    const video = document.getElementById("camera");
+    const canvas = document.getElementById("captureCanvas");
+    const capturedPreview = document.getElementById("capturedPreview");
+
+    const startButton = document.getElementById("startCamera");
+    const captureButton = document.getElementById("captureFace");
+    const retakeButton = document.getElementById("retakeFace");
+    const confirmButton = document.getElementById("confirmFace");
+
+    const statusText = document.getElementById("status");
+
+    let cameraStream = null;
+    let capturedImage = null;
+
+    // START CAMERA
+    startButton.addEventListener("click", async () => {
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: "user"
+                },
+                audio: false
+            });
+
+            video.srcObject = cameraStream;
+
+            await video.play();
+
+            video.style.display = "block";
+            canvas.style.display = "none";
+
+            captureButton.disabled = false;
+            startButton.disabled = true;
+
+            statusText.textContent =
+                "Camera started. Position your face.";
+
+        } catch (error) {
+            statusText.textContent =
+                "Camera access failed. Please allow camera permission.";
+        }
+    });
+
+    // CAPTURE FACE
+    captureButton.addEventListener("click", () => {
+
+        if (!video.videoWidth || !video.videoHeight) {
+            statusText.textContent = "Camera is not ready yet.";
+            return;
+        }
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const context = canvas.getContext("2d");
+
+        context.drawImage(
+            video,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        capturedImage = canvas.toDataURL("image/jpeg", 0.9);
+
+        capturedPreview.src = capturedImage;
+        capturedPreview.style.display = "block";
+
+        // Keep live camera visible.
+        // Keep the canvas hidden to avoid a duplicate preview.
+        video.style.display = "block";
+        canvas.style.display = "none";
+
+        captureButton.disabled = true;
+        retakeButton.disabled = false;
+        confirmButton.disabled = false;
+
+        statusText.textContent =
+            "Photo captured. Review your image.";
+    });
+
+    // RETAKE PHOTO
+    retakeButton.addEventListener("click", () => {
+
+        capturedImage = null;
+
+        capturedPreview.src = "";
+        capturedPreview.style.display = "none";
+
+        canvas.style.display = "none";
+        video.style.display = "block";
+
+        captureButton.disabled = false;
+        retakeButton.disabled = true;
+        confirmButton.disabled = true;
+
+        statusText.textContent =
+            "Camera ready. Capture again.";
+    });
+
+
+    // CONFIRM FACE REGISTRATION
+    confirmButton.addEventListener("click", async () => {
+
+        if (!capturedImage) {
+            statusText.textContent =
+                "Please capture your face first.";
+            return;
+        }
+
+        confirmButton.disabled = true;
+
+        statusText.textContent =
+            "Registering your face. Please wait...";
+
+        try {
+
+            const response = await fetch("/api/register-visitor-face", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    image: capturedImage
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result.message || "Face registration failed."
+                );
+            }
+
+            statusText.textContent =
+                "Face registered successfully! Visitor ID: " +
+                result.visitor_id;
+
+            setTimeout(() => {
+                window.location.href = "/visitor-verification-scanner";
+            }, 2000);
+
+            captureButton.disabled = true;
+            retakeButton.disabled = true;
+            confirmButton.disabled = true;
+
+        } catch (error) {
+
+            statusText.textContent =
+                error.message || "Unable to register face. Please try again.";
+
+            confirmButton.disabled = false;
+        }
+    });
+
+    // STOP CAMERA WHEN LEAVING THE PAGE
+    window.addEventListener("beforeunload", () => {
+
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => {
+                track.stop();
+            });
+        }
+
+    });
+
+</script>
+
+</body>
+</html>

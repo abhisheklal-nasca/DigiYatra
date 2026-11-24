@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiYatra - Passenger Details</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef2f7;
+            margin: 0;
+            padding: 25px 15px;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 550px;
+            margin: 20px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            color: #123b68;
+        }
+
+        h2 {
+            text-align: center;
+            color: #174ea6;
+        }
+
+        .notice {
+            text-align: center;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .details {
+            margin-top: 25px;
+        }
+
+        .detail {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 13px 5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .detail span:first-child {
+            color: #64748b;
+        }
+
+        .detail strong {
+            text-align: right;
+            color: #123b68;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 25px;
+            border: none;
+            border-radius: 8px;
+            background: #123b68;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .disclaimer {
+            margin-top: 20px;
+            text-align: center;
+            color: #b45309;
+            font-size: 13px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>DigiYatra</h1>
+    <h2>Passenger Details</h2>
+
+    <p class="notice">
+        Your first face verification was successful.
+        Please review your simulated flight details.
+    </p>
+
+    <div class="details">
+
+        <div class="detail">
+            <span>Passenger Name</span>
+            <strong>{{ passenger.passenger_name }}</strong>
+        </div>
+
+        <div class="detail">
+            <span>Passenger ID</span>
+            <strong>{{ passenger.passenger_id }}</strong>
+        </div>
+
+        <div class="detail">
+            <span>Origin</span>
+            <strong>{{ passenger.origin }} ({{ passenger.origin_code }})</strong>
+        </div>
+
+        <div class="detail">
+            <span>Destination</span>
+            <strong>{{ passenger.destination }} ({{ passenger.destination_code }})</strong>
+        </div>
+
+        <div class="detail">
+            <span>Flight Number</span>
+            <strong>{{ passenger.flight_number }}</strong>
+        </div>
+
+        <div class="detail">
+            <span>Flight Date</span>
+            <strong>{{ passenger.flight_date }}</strong>
+        </div>
+
+        <div class="detail">
+            <span>Departure Time</span>
+            <strong>{{ passenger.departure_time }}</strong>
+        </div>
+
+        <div class="detail">
+            <span>Seat Number</span>
+            <strong>{{ passenger.seat_number }}</strong>
+        </div>
+
+        <div class="detail">
+            <span>Boarding Gate</span>
+            <strong>{{ passenger.gate_number }}</strong>
+        </div>
+
+    </div>
+
+    <button onclick="window.location.href='/visitor-second-verification'">
+        Continue to Final Face Verification
+    </button>
+
+    <p class="disclaimer">
+        SIMULATED FLIGHT INFORMATION — NOT VALID FOR AIR TRAVEL
+    </p>
+
+</div>
+
+</body>
+</html>
